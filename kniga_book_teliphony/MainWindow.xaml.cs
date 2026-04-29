@@ -20,7 +20,7 @@ namespace kniga_book_teliphony
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new MainViewModel();
+            //DataContext = viewModel;
         }
     }
 }

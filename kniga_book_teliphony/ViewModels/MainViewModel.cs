@@ -1,4 +1,5 @@
 ﻿using kniga_book_teliphony.Models;
+using kniga_book_teliphony.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -13,6 +14,8 @@ namespace kniga_book_teliphony.ViewModels
     public class MainViewModel : ObservableObject
     {
         // Коллекция контактов
+        private readonly IDialogService _dialogService;
+        
         public ObservableCollection<Contact> Contacts { get; set; }
         private string _name = string.Empty;
         private string _phone = string.Empty;
@@ -36,24 +39,33 @@ namespace kniga_book_teliphony.ViewModels
         // Команды
         public ICommand AddCommand { get; }
         public ICommand DeleteCommand { get; }
-        public MainViewModel()
+        public MainViewModel(IDialogService dialogService)
         {
             Contacts = new ObservableCollection<Contact>();
             AddCommand = new RelayCommand(
             AddContact,() => CanAddContact());
             DeleteCommand = new RelayCommand(
             DeleteContact,() => CanDeleteContact());
+            _dialogService = dialogService;
         }
         private void AddContact()
         {
+            // Проверка на дубликат по номеру телефона
+            if (Contacts.Any(c => c.Phone == _phone))
+            {
+                _dialogService.ShowWarning(
+                "Контакт с таким номером уже существует!");
+                return;
+            }
             Contact newContact = new Contact
             {
                 Name = Name,
                 Phone = Phone,
             };
             Contacts.Add(newContact);
-            Name = string.Empty;
-            Phone = string.Empty;
+            _dialogService.ShowInfo($"{Name}, {Phone}");
+            //Name = string.Empty;
+            //Phone = string.Empty;
         }
         private bool CanAddContact()
         {
@@ -63,8 +75,13 @@ namespace kniga_book_teliphony.ViewModels
         }
         private void DeleteContact()
         {
-            if (SelectedContact != null)
-            Contacts.Remove(SelectedContact);
+            if (_dialogService.ShowConfirmation("Вы уверены, что хотите удалить?", "Удаление")) { 
+            if (SelectedContact != null) {
+                _dialogService.ShowWarning("tochno???");
+                Contacts.Remove(SelectedContact);
+                } 
+            }
+            _dialogService.ShowInfo($"{Name}, {Phone} ты удален!!! idi nahyi!!");
         }
         private bool CanDeleteContact()
         {
