@@ -9,11 +9,24 @@ namespace kniga_book_teliphony.Models
 {
     public class Contact : ObservableObject
     {
+        private int _id = 0;
         private string _name = string.Empty;
         private string _phone = string.Empty;
 
         // Допишите конструктор, который вызовет метод Validate для проверки значений.
         // Если некорректные – выбросить исключение
+        public int Id
+        {
+            get => _id;
+            set
+            {
+                if (value == _id)
+                {
+                    _id = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
         public string Name
         {
             get => _name;
@@ -42,6 +55,14 @@ namespace kniga_book_teliphony.Models
                 }
                 // события изменения свойства
             }
+        }
+
+        public Contact()
+        {
+            //if (!Validate(name, phone))
+            //{
+            //    throw new ArgumentException("Incorrect contact data");
+            //}
         }
         // TODO: добавьте метод Validate(), который
         // проверяет, что Name не пуст и Phone
@@ -72,6 +93,39 @@ namespace kniga_book_teliphony.Models
             if (Phone.Length == 10)
             {
                 foreach (char c in Phone)
+                {
+                    if (!char.IsDigit(c))
+                        return false;
+                }
+                return true;
+            }
+            return false;
+        }
+        public static bool Validate(string name, string phone)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(phone))
+            {
+                return false;
+            }
+
+            if (phone.Length == 12 && phone.StartsWith("+7"))
+            {
+                for (int i = 2; i < phone.Length; i++)
+                {
+                    if (!char.IsDigit(phone[i]))
+                        return false;
+                }
+                return true;
+            }
+
+            if (phone.Length == 10)
+            {
+                foreach (char c in phone)
                 {
                     if (!char.IsDigit(c))
                         return false;
